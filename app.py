@@ -131,16 +131,6 @@ else:
         st.write(f"Showing {len(filtered_data)} filtered results:")
         
         # Use st.write to display the styled DataFrame
-        
-        
-        # Add a "Copy to Clipboard" button
-        csv_data = filtered_data.to_csv(index=False)
-        st.download_button(
-            label="Copy to Clipboard",
-            data=csv_data,
-            file_name="filtered_data.csv",
-            mime="text/csv",
-        )
         st.write(style_dataframe(filtered_data))
     else:
         st.write("No data found for the selected filters.")
