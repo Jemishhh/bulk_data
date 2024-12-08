@@ -45,7 +45,7 @@ def style_dataframe(df):
     for col in highlight_columns:
         if col in df.columns:
             df[col] = df[col].astype(str)  # Ensure all values are strings for consistency
-    return df.style.applymap(highlight_percentages, subset=highlight_columns)\
+    return df.style.apply(highlight_percentages, subset=highlight_columns)\
                    .apply(lambda x: ['background-color: #f9f9f9' if i % 2 == 0 else '' for i in range(len(x))], axis=0)
 
 full_data = get_full_data()
