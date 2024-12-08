@@ -31,22 +31,27 @@ highlight_columns = ["%_of_curr", "3m_%", "6m_%", "9m_%", "12m_%"]
 
 # Highlight percentages
 def highlight_percentages(val):
-    if pd.isnull(val):
-        return ""
+    # Handle series or single values
+    if isinstance(val, pd.Series):
+        return ["color: green;" if float(str(x).replace("%", "")) > 0 else
+                "color: red;" if float(str(x).replace("%", "")) < 0 else ""
+                for x in val]
     try:
         val = float(str(val).replace("%", ""))  # Remove '%' and convert to float
         return "color: green;" if val > 0 else "color: red;" if val < 0 else ""
-    except ValueError:
+    except (ValueError, TypeError):
         return ""
 
+
 # Style DataFrame
-# def style_dataframe(df):
-#     df = df.copy()
-#     for col in highlight_columns:
-#         if col in df.columns:
-#             df[col] = df[col].astype(str)  # Ensure all values are strings for consistency
-#     return df.style.apply(highlight_percentages, subset=highlight_columns)\
-#                    .apply(lambda x: ['background-color: #f9f9f9' if i % 2 == 0 else '' for i in range(len(x))], axis=0)
+def style_dataframe(df):
+    df = df.copy()
+    for col in highlight_columns:
+        if col in df.columns:
+            df[col] = df[col].astype(str)  # Ensure all values are strings
+    return df.style.map(highlight_percentages, subset=highlight_columns)
+
+                   
 
 full_data = get_full_data()
 limited_data = get_limited_data()
@@ -111,7 +116,7 @@ if limited_data:
     # Display limited data initially
     if not apply_button:
         st.write("Showing initial 200 entries (use filters to refine results):")
-        st.dataframe(limited_df)
+        st.dataframe(style_dataframe(limited_df))
     else:
         # Apply filters on the full dataset
         filtered_data = full_df
@@ -148,7 +153,7 @@ if limited_data:
         if not filtered_data.empty:
             st.write(f"Showing {len(filtered_data)} filtered results:")
             
-            st.dataframe(filtered_data)
+            st.dataframe(style_dataframe(filtered_data))
         else:
             st.write("No data found for the selected filters.")
 else:
